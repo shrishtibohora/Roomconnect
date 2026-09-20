@@ -1,44 +1,95 @@
+```php
 <?php
 session_start();
 
 $message = "";
+$message_type = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $email = $_POST["email"];
-    $password = $_POST["password"];
+    $email = strtolower(trim($_POST["email"] ?? ""));
+    $password = $_POST["password"] ?? "";
 
-    $conn = new mysqli("localhost", "root", "", "roomconnect");
+    $errors = [];
 
-    if ($conn->connect_error) {
-        die("Database connection failed: " . $conn->connect_error);
+    // Email validation
+    if ($email === "") {
+
+        $errors[] = "Email is required.";
+
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        $errors[] = "Please enter a valid email address.";
     }
 
-    $sql = "SELECT * FROM owners WHERE email = '$email'";
-    $result = $conn->query($sql);
+    // Password validation
+    if ($password === "") {
 
-    if ($result->num_rows == 1) {
+        $errors[] = "Password is required.";
+    }
 
-        $owner = $result->fetch_assoc();
 
-        if (password_verify($password, $owner["password"])) {
+    if (empty($errors)) {
 
-            $_SESSION["owner_id"] = $owner["id"];
-            $_SESSION["owner_name"] = $owner["name"];
-            $_SESSION["owner_email"] = $owner["email"];
+        $conn = new mysqli(
+            "localhost",
+            "root",
+            "",
+            "roomconnect"
+        );
 
-            header("Location: owner/dashboard.php");
-            exit();
-
-        } else {
-            $message = "Incorrect password.";
+        if ($conn->connect_error) {
+            die("Database connection failed: " . $conn->connect_error);
         }
 
-    } else {
-        $message = "No owner account found with this email.";
-    }
+        // Prepared statement
+        $stmt = $conn->prepare(
+            "SELECT id, name, email, password
+             FROM owners
+             WHERE email = ?"
+        );
 
-    $conn->close();
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 1) {
+
+            $owner = $result->fetch_assoc();
+
+            // Check password
+            if (password_verify($password, $owner["password"])) {
+
+                session_regenerate_id(true);
+
+                $_SESSION["owner_id"] = $owner["id"];
+                $_SESSION["owner_name"] = $owner["name"];
+                $_SESSION["owner_email"] = $owner["email"];
+
+                header("Location: owner/dashboard.php");
+                exit();
+
+            } else {
+
+                $message = "Incorrect email or password.";
+                $message_type = "danger";
+            }
+
+        } else {
+
+            $message = "Incorrect email or password.";
+            $message_type = "danger";
+        }
+
+        $stmt->close();
+        $conn->close();
+
+    } else {
+
+        $message = implode("<br>", $errors);
+        $message_type = "danger";
+    }
 }
 ?>
 
@@ -75,13 +126,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <?php if ($message != ""): ?>
 
-                    <div class="alert alert-danger">
+                    <div class="alert alert-<?php echo $message_type; ?>">
                         <?php echo $message; ?>
                     </div>
 
                 <?php endif; ?>
 
+
                 <form method="POST">
+
+                    <!-- EMAIL -->
 
                     <div class="mb-3">
 
@@ -93,9 +147,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                name="email"
                                class="form-control"
                                placeholder="Enter your email"
+                               value="<?php echo htmlspecialchars($email ?? ''); ?>"
                                required>
 
                     </div>
+
+
+                    <!-- PASSWORD -->
 
                     <div class="mb-3">
 
@@ -111,6 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     </div>
 
+
                     <button type="submit"
                             class="btn btn-primary w-100">
 
@@ -120,11 +179,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 </form>
 
+
                 <p class="text-center mt-3">
+
                     Don't have an owner account?
+
                     <a href="owner-register.php">
                         Register
                     </a>
+
                 </p>
 
             </div>
@@ -137,3 +200,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 </html>
+```

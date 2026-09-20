@@ -1,47 +1,98 @@
+```php
 <?php
 session_start();
 
 $message = "";
+$message_type = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $email = $_POST["email"];
-    $password = $_POST["password"];
+    $email = strtolower(trim($_POST["email"] ?? ""));
+    $password = $_POST["password"] ?? "";
 
-    // Database connection
-    $conn = new mysqli("localhost", "root", "", "roomconnect");
+    $errors = [];
 
-    if ($conn->connect_error) {
-        die("Database connection failed: " . $conn->connect_error);
+    // -------------------------
+    // EMAIL VALIDATION
+    // -------------------------
+    if ($email === "") {
+
+        $errors[] = "Email is required.";
+
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        $errors[] = "Please enter a valid email address.";
     }
 
-    // Find user by email
-    $sql = "SELECT * FROM users WHERE email = '$email'";
-    $result = $conn->query($sql);
+    // -------------------------
+    // PASSWORD VALIDATION
+    // -------------------------
+    if ($password === "") {
+        $errors[] = "Password is required.";
+    }
 
-    if ($result->num_rows == 1) {
+    if (empty($errors)) {
 
-        $user = $result->fetch_assoc();
+        // Database connection
+        $conn = new mysqli(
+            "localhost",
+            "root",
+            "",
+            "roomconnect"
+        );
 
-        // Check password
-        if (password_verify($password, $user["password"])) {
-
-            $_SESSION["user_id"] = $user["id"];
-            $_SESSION["user_name"] = $user["name"];
-            $_SESSION["user_email"] = $user["email"];
-
-            header("Location: rooms.php");
-            exit();
-
-        } else {
-            $message = "Incorrect password.";
+        if ($conn->connect_error) {
+            die("Database connection failed: " . $conn->connect_error);
         }
 
-    } else {
-        $message = "No account found with this email.";
-    }
+        // Prepared statement
+        $stmt = $conn->prepare(
+            "SELECT id, name, email, password
+             FROM users
+             WHERE email = ?"
+        );
 
-    $conn->close();
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 1) {
+
+            $user = $result->fetch_assoc();
+
+            // Verify password
+            if (password_verify($password, $user["password"])) {
+
+                session_regenerate_id(true);
+
+                $_SESSION["user_id"] = $user["id"];
+                $_SESSION["user_name"] = $user["name"];
+                $_SESSION["user_email"] = $user["email"];
+
+                header("Location: rooms.php");
+                exit();
+
+            } else {
+
+                $message = "Incorrect email or password.";
+                $message_type = "danger";
+            }
+
+        } else {
+
+            $message = "Incorrect email or password.";
+            $message_type = "danger";
+        }
+
+        $stmt->close();
+        $conn->close();
+
+    } else {
+
+        $message = implode("<br>", $errors);
+        $message_type = "danger";
+    }
 }
 ?>
 
@@ -78,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <?php if ($message != ""): ?>
 
-                    <div class="alert alert-danger">
+                    <div class="alert alert-<?php echo $message_type; ?>">
                         <?php echo $message; ?>
                     </div>
 
@@ -86,6 +137,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
                 <form method="POST">
+
+                    <!-- EMAIL -->
 
                     <div class="mb-3">
 
@@ -97,10 +150,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                name="email"
                                class="form-control"
                                placeholder="Enter your email"
+                               value="<?php echo htmlspecialchars($email ?? ''); ?>"
                                required>
 
                     </div>
 
+
+                    <!-- PASSWORD -->
 
                     <div class="mb-3">
 
@@ -147,3 +203,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </body>
 </html>
+```
