@@ -32,9 +32,17 @@ if (!isset($_SESSION["owner_id"])) {
             🏠 RoomConnect
         </a>
 
-        <span class="navbar-text">
-            Welcome, <?php echo $_SESSION["owner_name"]; ?>
-        </span>
+       <div class="d-flex align-items-center gap-3">
+
+    <span>
+        Welcome, <?php echo htmlspecialchars($_SESSION["owner_name"]); ?>
+    </span>
+
+    <a href="../logout.php" class="btn btn-outline-danger">
+        Logout
+    </a>
+
+</div>
 
     </div>
 

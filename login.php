@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION["user_name"] = $user["name"];
                 $_SESSION["user_email"] = $user["email"];
 
-                header("Location: rooms.php");
+                     header("Location: user-dashboard.php");
                 exit();
 
             } else {
