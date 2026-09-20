@@ -1,0 +1,109 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+
+/* Hero */
+.hero-section {
+    padding: 100px 0;
+    background: #f5f7ff;
+}
+
+.hero-placeholder {
+    font-size: 180px;
+}
+
+
+/* Search */
+.search-section {
+    margin-top: -40px;
+    position: relative;
+}
+
+.search-box {
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+}
+
+
+/* Rooms */
+.room-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+}
+
+.room-image {
+    height: 200px;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 90px;
+}
+
+
+/* How it works */
+.how-section {
+    background: #f8f9fa;
+}body {
+    font-family: Arial, sans-serif;
+}
+
+
+/* Hero */
+.hero-section {
+    padding: 100px 0;
+    background: #f5f7ff;
+}
+
+.hero-placeholder {
+    font-size: 180px;
+}
+
+
+/* Search */
+.search-section {
+    margin-top: -40px;
+    position: relative;
+}
+
+.search-box {
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+}
+
+
+/* Rooms */
+.room-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+}
+
+.room-image {
+    height: 200px;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 90px;
+}
+
+
+/* How it works */
+.how-section {
+    background: #f8f9fa;
+}
