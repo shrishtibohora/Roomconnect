@@ -1,11 +1,33 @@
- <?php
+<?php
 session_start();
 
 if (!isset($_SESSION["admin_id"])) {
     header("Location: admin_login.php");
     exit();
 }
-?>
+
+      $conn = new mysqli("localhost", "root", "", "roomconnect");
+
+          if ($conn->connect_error) {
+            die("Database connection failed: " . $conn->connect_error);
+       }
+
+                    /* Count Users */
+         $user_count = $conn->query("SELECT COUNT(*) AS total FROM users")
+                    ->fetch_assoc()["total"];
+
+           /* Count Owners */
+          $owner_count = $conn->query("SELECT COUNT(*) AS total FROM owners")
+                     ->fetch_assoc()["total"];
+
+                     /* Count Rooms */
+            $room_count = $conn->query("SELECT COUNT(*) AS total FROM rooms")
+                    ->fetch_assoc()["total"];
+
+               /* Count Bookings */
+              $booking_count = $conn->query("SELECT COUNT(*) AS total FROM bookings")
+                       ->fetch_assoc()["total"];
+              ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -73,6 +95,9 @@ if (!isset($_SESSION["admin_id"])) {
                     <h5 class="card-title mt-2">
                         Users
                     </h5>
+                    <h2 class="fw-bold">
+                         <?php echo $user_count; ?>
+                        </h2>
 
                     <p class="text-muted">
                         Manage registered users.
@@ -101,7 +126,9 @@ if (!isset($_SESSION["admin_id"])) {
                     <h5 class="card-title mt-2">
                         Owners
                     </h5>
-
+                   <h2 class="fw-bold">
+                        <?php echo $owner_count; ?>
+                     </h2>
                     <p class="text-muted">
                         Manage property owners.
                     </p>
@@ -129,6 +156,9 @@ if (!isset($_SESSION["admin_id"])) {
                     <h5 class="card-title mt-2">
                         Rooms
                     </h5>
+                    <h2 class="fw-bold">
+                          <?php echo $room_count; ?>
+                      </h2>
 
                     <p class="text-muted">
                         Manage listed rooms.
@@ -157,6 +187,8 @@ if (!isset($_SESSION["admin_id"])) {
                     <h5 class="card-title mt-2">
                         Bookings
                     </h5>
+                    <h2 class="fw-bold">
+                        <?php echo $booking_count; ?>
 
                     <p class="text-muted">
                         View booking requests.

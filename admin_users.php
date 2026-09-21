@@ -12,7 +12,10 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT id, name, email, created_at FROM users ORDER BY id DESC";
+$sql = "SELECT id, name, email, created_at
+        FROM users
+        ORDER BY id DESC";
+
 $result = $conn->query($sql);
 ?>
 
@@ -47,14 +50,16 @@ $result = $conn->query($sql);
 </nav>
 
 
+<!-- Main Content -->
 <div class="container py-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
             <h2 class="fw-bold">Manage Users</h2>
+
             <p class="text-muted">
-                View all registered users.
+                View and manage all registered users.
             </p>
         </div>
 
@@ -80,6 +85,7 @@ $result = $conn->query($sql);
                             <th>Name</th>
                             <th>Email</th>
                             <th>Registered Date</th>
+                            <th>Action</th>
                         </tr>
 
                     </thead>
@@ -108,6 +114,16 @@ $result = $conn->query($sql);
                                     <?php echo $user["created_at"]; ?>
                                 </td>
 
+                                <td>
+
+                                    <a href="admin_delete_user.php?id=<?php echo $user["id"]; ?>"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete <?php echo htmlspecialchars($user["name"], ENT_QUOTES); ?>?');">
+                                        Delete
+                                    </a>
+
+                                </td>
+
                             </tr>
 
                         <?php endwhile; ?>
@@ -115,7 +131,7 @@ $result = $conn->query($sql);
                     <?php else: ?>
 
                         <tr>
-                            <td colspan="4" class="text-center text-muted">
+                            <td colspan="5" class="text-center text-muted">
                                 No users registered yet.
                             </td>
                         </tr>

@@ -11,44 +11,79 @@ $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $email = $_POST["email"];
+    $email = trim($_POST["email"]);
     $password = $_POST["password"];
 
-    $sql = "SELECT * FROM admins WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
+    // Strong password validation
+    if (strlen($password) < 8) {
 
-    $result = $stmt->get_result();
+        $error = "Password must be at least 8 characters.";
 
-    if ($result->num_rows == 1) {
+    } elseif (!preg_match("/[A-Z]/", $password)) {
 
-        $admin = $result->fetch_assoc();
+        $error = "Password must contain at least one uppercase letter.";
 
-        if ($password == $admin["password"]) {
+    } elseif (!preg_match("/[a-z]/", $password)) {
 
-            $_SESSION["admin_id"] = $admin["id"];
-            $_SESSION["admin_name"] = $admin["name"];
+        $error = "Password must contain at least one lowercase letter.";
 
-            header("Location: admin_dashboard.php");
-            exit();
+    } elseif (!preg_match("/[0-9]/", $password)) {
 
-        } else {
-            $error = "Incorrect password!";
-        }
+        $error = "Password must contain at least one number.";
+
+    } elseif (!preg_match("/[\W_]/", $password)) {
+
+        $error = "Password must contain at least one special character.";
 
     } else {
-        $error = "Admin account not found!";
+
+        $sql = "SELECT * FROM admins WHERE email = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 1) {
+
+            $admin = $result->fetch_assoc();
+
+            // Existing plain-text password checking
+            if ($password == $admin["password"]) {
+
+                $_SESSION["admin_id"] = $admin["id"];
+                $_SESSION["admin_name"] = $admin["name"];
+
+                header("Location: admin_dashboard.php");
+                exit();
+
+            } else {
+
+                $error = "Incorrect email or password.";
+
+            }
+
+        } else {
+
+            $error = "Incorrect email or password.";
+
+        }
+
+        $stmt->close();
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <title>Admin Login - RoomConnect</title>
 
     <style>
+
         body {
             font-family: Arial, sans-serif;
             background: #f4f6f9;
@@ -100,7 +135,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             margin-bottom: 15px;
         }
+
     </style>
+
 </head>
 
 <body>
@@ -110,24 +147,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h2>Admin Login</h2>
 
     <?php if ($error != ""): ?>
+
         <div class="error">
-            <?php echo $error; ?>
+            <?php echo htmlspecialchars($error); ?>
         </div>
+
     <?php endif; ?>
 
     <form method="POST">
 
         <label>Email</label>
-        <input type="email" name="email" required>
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Enter admin email"
+            required
+        >
 
         <label>Password</label>
-        <input type="password" name="password" required>
 
-        <button type="submit">Login</button>
+        <input
+            type="password"
+            name="password"
+            placeholder="Enter strong password"
+            required
+        >
+
+        <button type="submit">
+            Login
+        </button>
 
     </form>
 
 </div>
 
 </body>
+
 </html>

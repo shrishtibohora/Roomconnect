@@ -60,7 +60,7 @@ $result = $conn->query($sql);
             <h2 class="fw-bold">Manage Rooms</h2>
 
             <p class="text-muted">
-                View all rooms listed by property owners.
+                View and manage all rooms listed by property owners.
             </p>
         </div>
 
@@ -91,6 +91,7 @@ $result = $conn->query($sql);
                             <th>Price</th>
                             <th>Status</th>
                             <th>Created Date</th>
+                            <th>Action</th>
                         </tr>
 
                     </thead>
@@ -170,6 +171,15 @@ $result = $conn->query($sql);
                                     <?php echo $room["created_at"]; ?>
                                 </td>
 
+                                <!-- ACTION -->
+                                <td>
+                                    <a href="admin_delete_room.php?id=<?php echo $room["id"]; ?>"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete <?php echo htmlspecialchars($room["title"], ENT_QUOTES); ?>?');">
+                                        Delete
+                                    </a>
+                                </td>
+
                             </tr>
 
                         <?php endwhile; ?>
@@ -177,7 +187,7 @@ $result = $conn->query($sql);
                     <?php else: ?>
 
                         <tr>
-                            <td colspan="9" class="text-center text-muted">
+                            <td colspan="10" class="text-center text-muted">
                                 No rooms listed yet.
                             </td>
                         </tr>

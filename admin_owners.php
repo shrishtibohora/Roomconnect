@@ -12,8 +12,8 @@ if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT id, name, email, phone, created_at 
-        FROM owners 
+$sql = "SELECT id, name, email, phone, created_at
+        FROM owners
         ORDER BY id DESC";
 
 $result = $conn->query($sql);
@@ -59,7 +59,7 @@ $result = $conn->query($sql);
             <h2 class="fw-bold">Manage Owners</h2>
 
             <p class="text-muted">
-                View all registered property owners.
+                View and manage all registered property owners.
             </p>
         </div>
 
@@ -86,6 +86,7 @@ $result = $conn->query($sql);
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Registered Date</th>
+                            <th>Action</th>
                         </tr>
 
                     </thead>
@@ -118,6 +119,15 @@ $result = $conn->query($sql);
                                     <?php echo $owner["created_at"]; ?>
                                 </td>
 
+                                <!-- ACTION COLUMN -->
+                                <td>
+                                    <a href="admin_delete_owner.php?id=<?php echo $owner["id"]; ?>"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete <?php echo htmlspecialchars($owner["name"], ENT_QUOTES); ?>?');">
+                                        Delete
+                                    </a>
+                                </td>
+
                             </tr>
 
                         <?php endwhile; ?>
@@ -125,7 +135,7 @@ $result = $conn->query($sql);
                     <?php else: ?>
 
                         <tr>
-                            <td colspan="5" class="text-center text-muted">
+                            <td colspan="6" class="text-center text-muted">
                                 No owners registered yet.
                             </td>
                         </tr>
